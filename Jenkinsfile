@@ -1,51 +1,88 @@
 pipeline {
-    agent {
-        label "app_builder_android"
-    }
-
-	environment {
-		FLUTTER_HOME = '/home/agustine/development/flutter'
-		ANDROID_HOME = '/home/agustine/Android/Sdk'
-		PATH="${FLUTTER_HOME}/bin:/bin:${PATH}"
-	}
+    agent none
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
+        stage('Build application') {
+            parallel {
+                stage('Android Builder') {
+                    agent {
+                        label "app_builder_android"
+                    }
 
-        stage('Install Dependencies') {
-            steps {
-		dir('material_3_demo') {
-                	sh 'flutter pub get'
-		}
-            }
-        }
+                    stages {
+                        stage('Checkout') {
+                            steps {
+                                checkout scm
+                            }
+                        }
 
-        stage('Run Tests') {
-            steps {
-		dir('material_3_demo') {
-                	sh 'flutter test'
-		}
-            }
-        }
+                        stage('Install Dependencies') {
+                            steps {
+                                sh 'flutter pub get'
+                            }
+                        }
 
-        stage('Build APK') {
-            steps {
-		dir('material_3_demo') {
-                	sh 'flutter build apk --release'
-		}
-            }
-        }
+                        stage('Run Tests') {
+                            steps {
+                                sh 'flutter test'
+                            }
+                        }
 
-        stage('Archive APK') {
-            steps {
-                archiveArtifacts artifacts: '**/build/app/outputs/flutter-apk/app-release.apk', fingerprint: true
+                        stage('Build APK') {
+                            steps {
+                                sh 'flutter build apk --release'
+                            }
+                        }
+
+                        stage('Archive APK') {
+                            steps {
+                                archiveArtifacts artifacts: '**/build/app/outputs/flutter-apk/app-release.apk', fingerprint: true
+                            }
+                        }
+                    }
+                }
+
+                stage('Linux Builder') {
+                    agent {
+                        label "app_builder_android"
+                    }
+
+                    stages {
+                        stage('Checkout') {
+                            steps {
+                                checkout scm
+                            }
+                        }
+
+                        stage('Install Dependencies') {
+                            steps {
+                                sh 'flutter pub get'
+                            }
+                        }
+
+                        stage('Run Tests') {
+                            steps {
+                                sh 'flutter test'
+                            }
+                        }
+
+                        stage('Build Linux') {
+                            steps {
+                                sh 'flutter build linux --release'
+                            }
+                        }
+
+                        stage('Archive Linux') {
+                            steps {
+                                archiveArtifacts artifacts: '**/build/linux/x64/release/bundle/material_3_demo', fingerprint: true
+                            }
+                        }
+                    }
+                }
             }
         }
     }
+    
 
     post {
         always {
