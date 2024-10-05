@@ -27,7 +27,7 @@ pipeline {
                 stage('Linux Builder') {
                     agent {
                         node {
-                            label 'app_builder_linux'
+                            label 'app_builder_android'
                         }
                     }
 
