@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label "app_builder_android"
+    }
 
 	environment {
 		FLUTTER_HOME = '/home/agustine/development/flutter'
