@@ -1,5 +1,6 @@
 pipeline {
     agent none
+
     environment {
 	FLUTTER_HOME = '/home/agustine/development/flutter'
 	ANDROID_HOME = '/home/agustine/Android/Sdk'
@@ -10,7 +11,11 @@ pipeline {
         stage('Build application') {
             parallel {
                 stage('Android Builder') {
-                    agent { label 'app_builder_android' }
+                    agent {
+                        node {
+                            label 'app_builder_android'
+                        }
+                    }
 
                     steps {
                         script {
@@ -20,7 +25,11 @@ pipeline {
                 }
 
                 stage('Linux Builder') {
-                    agent { label 'app_builder_android' }
+                    agent {
+                        node {
+                            label 'app_builder_linux'
+                        }
+                    }
 
                     steps {
                         script {
