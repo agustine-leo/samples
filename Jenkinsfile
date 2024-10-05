@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+	environment {
+		FLUTTER_HOME = '/home/agustine/development/flutter'
+		ANDROID_HOME = '/home/agustine/Android/Sdk'
+		PATH="${FLUTTER_HOME}/bin:/bin:${PATH}"
+	}
+
     stages {
         stage('Checkout') {
             steps {
