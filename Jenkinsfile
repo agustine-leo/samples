@@ -11,29 +11,19 @@ pipeline {
         stage('Build application') {
             parallel {
                 stage('Android Builder') {
-                    agent {
-                        node {
-                            label 'app_builder_android'
-                        }
-                    }
+                    agent { label 'app_builder_android' }
 
                     steps {
                         script {
-                            buildFlutterApp('apk', '**/build/app/outputs/flutter-apk/app-release.apk')
+                            buildFlutterApp('apk', '**/build/app/outputs/flutter-apk/app-release.apk', 'app_builder_android')
                         }
                     }
                 }
 
                 stage('Linux Builder') {
-                    agent {
-                        node {
-                            label 'app_builder_android'
-                        }
-                    }
-
                     steps {
                         script {
-                            buildFlutterApp('linux', '**/build/linux/x64/release/bundle/material_3_demo')
+                            buildFlutterApp('linux', '**/build/linux/x64/release/bundle/material_3_demo', 'app_builder_android')
                         }
                     }
                 }
@@ -50,24 +40,29 @@ pipeline {
 }
 
 
-def buildFlutterApp(target, artifactPath) {
+def buildFlutterApp(target, artifactPath, agentLabel) {
     stage('Checkout') {
+        agent { label agentLabel }
         checkout scm
     }
 
     stage('Install Dependencies') {
+        agent { label agentLabel }
         sh 'flutter pub get'
     }
 
     stage('Run Tests') {
+        agent { label agentLabel }
         sh 'flutter test'
     }
 
     stage('Build App') {
+        agent { label agentLabel }
         sh "flutter build ${target} --release"
     }
 
     stage('Archive Artifact') {
+        agent { label agentLabel }
         archiveArtifacts artifacts: artifactPath, fingerprint: true
     }
 }
