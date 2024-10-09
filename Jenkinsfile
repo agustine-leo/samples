@@ -21,6 +21,8 @@ pipeline {
                 }
 
                 stage('Linux Builder') {
+                    agent { label 'app_builder_android' }
+
                     steps {
                         script {
                             buildFlutterApp('linux', '**/build/linux/x64/release/bundle/material_3_demo', 'app_builder_android')
